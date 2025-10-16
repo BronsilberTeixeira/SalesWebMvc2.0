@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SalesWebMvc.Migrations;
 using SalesWebMvc.Models;
 using SalesWebMvc.Models.ViewModels;
 using SalesWebMvc.Services;
@@ -6,6 +7,7 @@ using SalesWebMvc.Services.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace SalesWebMvc.Controllers
 {
@@ -33,9 +35,15 @@ namespace SalesWebMvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Seller obj)
+        public IActionResult Create(Seller seller)
         {
-            _sellerService.Insert(obj);
+            if (!ModelState.IsValid)
+            {
+                var departments =  _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
+                return View(viewModel);
+            }
+             _sellerService.Insert(seller);
             return RedirectToAction(nameof(Index));
         }
 
